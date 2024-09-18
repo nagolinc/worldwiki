@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Viewer</title>
+    <script>
+        async function fetchEntityStories() {
+            const entity = document.getElementById('entityInput').value;
+            const response = await fetch(`/list_entity?entity=${entity}`);
+            const data = await response.json();
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            if (response.ok) {
+                data.forEach(title => {
+                    const link = document.createElement('a');
+                    link.href = `/?title=${title}`;
+                    link.textContent = title;
+                    link.onclick = (e) => {
+                        e.preventDefault();
+                        fetchStory(title);
+                    };
+                    resultDiv.appendChild(link);
+                    resultDiv.appendChild(document.createElement('br'));
+                });
+            } else {
+                resultDiv.textContent = data.error;
+            }
+        }
+
+        async function fetchStory(title) {
+            const response = await fetch(`/get_story?title=${title}`);
+            const data = await response.json();
+            const storyDiv = document.getElementById('story');
+            storyDiv.innerHTML = '';
+
+            if (response.ok) {
+                storyDiv.textContent = JSON.stringify(data, null, 2);
+            } else {
+                storyDiv.textContent = data.error;
+            }
+        }
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const title = urlParams.get('title');
+            if (title) {
+                fetchStory(title);
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>Story Viewer</h1>
+    <div>
+        <label for="entityInput">Entity:</label>
+        <input type="text" id="entityInput">
+        <button onclick="fetchEntityStories()">Fetch Stories</button>
+    </div>
+    <div id="result"></div>
+    <div id="story"></div>
+</body>
+</html>

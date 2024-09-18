@@ -1,0 +1,46 @@
+Extract all named entities from the provided passage
+
+Include the following fields:
+name: this should be the Proper Noun Name of the entity
+IMPORTANT: type should be one of: 
+* person
+* location
+* organization
+* artifact
+* technology
+* language
+* race
+* monster
+* animal
+* plant
+* mineral
+* event
+
+description: a short description of the entity sutiable for a text-to-image generator
+ Make sure to include important vistual details like age, outfit and hair color
+
+status: a short description of the entity's current situation
+ this should include location, any conditions (sick, dead) and any immeidate goals or plans they have
+
+For example in response to a passage like this:
+
+John Doe stood at the edge of the Desert of Despair with a look of grim determination on his face.
+
+Output your response as JSON like so:
+
+
+{"title":"John Doe at the Desert of Despair",
+"entities":[
+    {"name":"John Doe",
+    "type":"person",
+    "description":"John Doe is a human male who is 37 years old, he wears a brown shirt and has short blonde hair",
+    "status":"John Doe is standing on the edge of the Desert of Despair"
+    },
+    {"name":"Desert of Despair",
+    "type":"location",
+    ...
+    }
+]}
+
+IMPORTANT: Make sure to give this story a UNIQUE title
+IMPORTANT: MAKE sure to extract EVERY SINGLE named entity from the passage

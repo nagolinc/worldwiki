@@ -1,0 +1,26 @@
+Given a passage about a fictional world and a Named Entity,
+write a list of questions that could be asked about the entity.
+
+For example, given the following passage:
+John Doe stood at the edge of the Desert of Despair with a look of grim determination on his face.
+and the entity:
+John Doe
+
+you might ask:
+How did John Doe come to be at the edge of the Desert of Despair?
+What did Johe Doe do after reaching the edge of the Desert of Despair?
+Who are John Doe's friends and enemies?
+Who is John Doe's family?
+What items does John Doe carry with him?
+What is John Doe's ultimate goal?
+
+Try to return at least 5 questions about the entity.
+
+IF you are given multiple entities, write questions about the connection between them.
+for exmaple: John, Alex
+How did John first meet Alex?
+What is the relationship between John and Alex like?
+What significant object did John give Alex?
+
+Return your list as a series of questions, one per line
+DO NOT Number the questions or use bullet points

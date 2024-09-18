@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Viewer</title>
+    <script>
+        async function fetchEntityStories() {
+            const entity = document.getElementById('entityInput').value;
+            const response = await fetch(`/list_entity?entity=${entity}`);
+            const data = await response.json();
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            if (response.ok) {
+                data.forEach(title => {
+                    const link = document.createElement('a');
+                    link.href = `/static/index.html?title=${title}`;
+                    link.textContent = title;
+                    link.onclick = (e) => {
+                        e.preventDefault();
+                        fetchStory(title);
+                    };
+                    resultDiv.appendChild(link);
+                    resultDiv.appendChild(document.createElement('br'));
+                });
+            } else {
+                resultDiv.textContent = data.error;
+            }
+        }
+
+        async function fetchStory(title) {
+            const response = await fetch(`/get_story?title=${title}`);
+            const data = await response.json();
+            const storyDiv = document.getElementById('story');
+            storyDiv.innerHTML = '';
+
+            if (response.ok) {
+                const titleElement = document.createElement('h2');
+                titleElement.textContent = data.title;
+                storyDiv.appendChild(titleElement);
+
+                const promptElement = document.createElement('p');
+                promptElement.textContent = `Prompt: ${data.prompt}`;
+                storyDiv.appendChild(promptElement);
+
+                const storyElement = document.createElement('p');
+                storyElement.innerHTML = data.story.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                storyDiv.appendChild(storyElement);
+
+                const entitiesElement = document.createElement('div');
+                entitiesElement.innerHTML = '<h3>Entities:</h3>';
+                data.entities.forEach(entity => {
+                    const entityDiv = document.createElement('div');
+                    const entityLink = document.createElement('a');
+                    entityLink.href = `/static/index.html?entity=${entity.name}`;
+                    entityLink.textContent = entity.name;
+                    entityLink.onclick = (e) => {
+                        e.preventDefault();
+                        document.getElementById('entityInput').value = entity.name;
+                        fetchEntityStories();
+                    };
+                    entityDiv.appendChild(entityLink);
+                    entityDiv.innerHTML += `
+                        <br><strong>Type:</strong> ${entity.type}<br>
+                        <strong>Description:</strong> ${entity.description}<br>
+                        <strong>Status:</strong> ${entity.status}<br><br>
+                    `;
+
+                    const expandButton = document.createElement('button');
+                    expandButton.textContent = 'Expand';
+                    expandButton.onclick = async (e) => {
+                        e.preventDefault();
+                        const expandResponse = await fetch(`/expand?title=${title}&entity=${entity.name}`);
+                        const expandedData = await expandResponse.json();
+                        if (expandResponse.ok) {
+                            window.location.href = `/static/index.html?title=${expandedData.title}`;
+                        } else {
+                            alert(expandedData.error);
+                        }
+                    };
+                    entityDiv.appendChild(expandButton);
+
+                    
+                    entitiesElement.appendChild(entityDiv);
+                });
+                storyDiv.appendChild(entitiesElement);
+            } else {
+                storyDiv.textContent = data.error;
+            }
+        }
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const title = urlParams.get('title');
+            const entity = urlParams.get('entity');
+            if (title) {
+                fetchStory(title);
+            } else if (entity) {
+                document.getElementById('entityInput').value = entity;
+                fetchEntityStories();
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>Story Viewer</h1>
+    <div>
+        <label for="entityInput">Entity:</label>
+        <input type="text" id="entityInput">
+        <button onclick="fetchEntityStories()">Fetch Stories</button>
+    </div>
+    <div id="result"></div>
+    <div id="story"></div>
+</body>
+</html>
